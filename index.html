@@ -12,6 +12,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column; /* makes the elements stack on top of each other instead of side by side */
             height: 100vh;
             margin: 0;
         }
@@ -20,14 +21,28 @@
             max-width: 80%;
             max-height: 60vh;
         }
+/* style for the file input, the standard one looks a bit bad. */
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333333;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        /* hover effect that changes the background color so it "highlights" when the cursor goes over it */
+            input[type="file"]:hover { 
+            background-color: #555555;
+        }
+
+        
     </style>
 </head>
 <body>
     <h1>Liminal generator</h1>
-    <br>
 
+    
     <input type="file" id="imageInput" accept="image/*">
-    <canvas id="canvas" style="display:flex;"></canvas>
+    <canvas id="canvas" style="display:none;"></canvas> <!-- need display set to none just so we can change it later on, makes the page look better -->
 
 </body>
 
@@ -94,10 +109,13 @@
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
             const imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            applyYellowGradiant(imagedata);
+            // usign the order desaturate -> yellow gradiant --> grain
             desaturate(imagedata);
+            applyYellowGradiant(imagedata);
             addGrain(imagedata)
             ctx.putImageData(imagedata, 0, 0);
+            canvas.style.display = 'block'; // need this otherwise the canvas does not show up D:
+
         };
         img.src = URL.createObjectURL(file);
     });
