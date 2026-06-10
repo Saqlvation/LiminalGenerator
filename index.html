@@ -44,6 +44,7 @@
     
     <input type="file" id="imageInput" accept="image/*">
     <canvas id="canvas" style="display:none;"></canvas> <!-- need display set to none just so we can change it later on, makes the page look better -->
+    <button id="downloadbtn" style="display:none; margin-top: 20px; padding: 10px; background-color: #333333; color: #ffffff; cursor: pointer;">Download</button>
 
 </body>
 
@@ -131,6 +132,15 @@
             contrastFix(imagedata);
             ctx.putImageData(imagedata, 0, 0);
             canvas.style.display = 'block'; // need this otherwise the canvas does not show up D:
+            // start of download button instructions
+            const btn = document.getElementById('downloadbtn');
+            btn.style.display = 'block';
+            btn.onclick = function() {
+                const link = document.createElement('a'); // creates a link element to download the image
+                link.download = 'liminal_image.png'; // name of the file downloaded
+                link.href = canvas.toDataURL(); 
+                link.click(); // triggers the download
+            }
 
         };
         img.src = URL.createObjectURL(file);
