@@ -39,6 +39,7 @@
 </head>
 <body>
     <h1>Liminal generator</h1>
+    <p> Upload an image to transform it into ur own dream</p>
 
     
     <input type="file" id="imageInput" accept="image/*">
@@ -75,6 +76,7 @@
         }
 
     }
+    // adds a grain effect(or noise) to the image making it seem more analog horror like.
     function addGrain(imagedata) {
         const data = imagedata.data;
         let maxGrain = 50; // increase this value for more grain
@@ -90,6 +92,19 @@
         }
 
     }
+    // makes everything much darker making sure every shadow is more pronounced
+    function contrastFix(imagedata) {
+            const data = imagedata.data;
+            for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            data[i] = 30 + (r / 255) * (220 - 30);
+            data[i + 1] = 30 + (g / 255) * (220 - 30);
+            data[i + 2] = 30 + (b / 255) * (220 - 30);
+        }
+    }
+
 
 
 
@@ -112,7 +127,8 @@
             // usign the order desaturate -> yellow gradiant --> grain
             desaturate(imagedata);
             applyYellowGradiant(imagedata);
-            addGrain(imagedata)
+            addGrain(imagedata);
+            contrasftFix(imagedata);
             ctx.putImageData(imagedata, 0, 0);
             canvas.style.display = 'block'; // need this otherwise the canvas does not show up D:
 
