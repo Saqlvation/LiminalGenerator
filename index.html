@@ -15,8 +15,90 @@
             height: 100vh;
             margin: 0;
         }
+/* canvas style ; necessary to prevent the img from being too big and breaking the layout */
+        canvas { 
+            max-width: 80%;
+            max-height: 60vh;
+        }
     </style>
 </head>
 <body>
     <h1>Liminal generator</h1>
+    <br>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <canvas id="canvas" style="display:flex;"></canvas>
+
 </body>
+
+<script>
+     // simply applies a yellow gradiant remembering that yellow is (255, 255, 0) in RGB
+    function applyYellowGradiant(imagedata) {
+        const data = imagedata.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const gray = (r + g + b) / 3;
+            data[i] = r + 50; // Increase red
+            data[i + 1] = g + 50; // Increase green
+            data[i + 2] = b; // Keep blue the same 
+        }
+
+    }
+// desatuate the image using lerp to give that washed out look.(lerp not larp btw.)
+    function desaturate(imagedata) { 
+        const data = imagedata.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const gray = (r + g + b) / 3;
+            data[i] = r + (gray - r) * 0.5;
+            data[i + 1] = g + (gray - g) * 0.5;
+            data[i + 2] = b + (gray - b) * 0.5;
+        }
+
+    }
+    function addGrain(imagedata) {
+        const data = imagedata.data;
+        let maxGrain = 50; // increase this value for more grain
+        let minGrain = -50; // increase this value for more grain
+            for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const grain = Math.random() * (maxGrain - minGrain) + minGrain; // random grain value between min and max
+            data[i] = r + grain;
+            data[i + 1] = g + grain;
+            data[i + 2] = b + grain;
+        }
+
+    }
+
+
+
+
+
+
+    // canvas elements and event listener for the file input
+    const input = document.getElementById('imageInput');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const img = new Image();
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            applyYellowGradiant(imagedata);
+            desaturate(imagedata);
+            addGrain(imagedata)
+            ctx.putImageData(imagedata, 0, 0);
+        };
+        img.src = URL.createObjectURL(file);
+    });
+    </script>
