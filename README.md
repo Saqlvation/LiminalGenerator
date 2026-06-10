@@ -1,7 +1,8 @@
 # LiminalGenerator
 A web-based image processing engine that transforms ordinary photos into eerie, nostalgic, and surreal art. Inspired by the backrooms movie i watched recently and the popular fandom.
 ![before/after](assets/limgeneratorusage.png)
-
+Example on how it works:
+![Gif.Example](assets/gifExample.gif)
 
 ### How to use it? 
 You can either download the HTML file and open it with a browser or just by using the demo in this website 

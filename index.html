@@ -29,7 +29,7 @@
             color: #ffffff;
             cursor: pointer;
         }
-        /* hover effect that changes the background color so it "highlights" when the cursor goes over it */
+ /* hover effect that changes the background color so it "highlights" when the cursor goes over it */
             input[type="file"]:hover { 
             background-color: #555555;
         }
@@ -40,6 +40,12 @@
 <body>
     <h1>Liminal generator</h1>
     <p> Upload an image to transform it into ur own dream</p>
+<!-- This is a dropdown menu for selecting image presets all do a different thing-->
+    <select id="presetSelect" style="margin-top: 15px; padding: 10px; background-color: #333; color: #fff; border: none; cursor: pointer;">
+    <option value="backrooms">Backrooms</option>
+    <option value="analog">Analog</option>
+    <option value="dreamcore">Dreamcore</option>
+    </select>
 
     
     <input type="file" id="imageInput" accept="image/*">
@@ -105,6 +111,19 @@
             data[i + 2] = 30 + (b / 255) * (220 - 30);
         }
     }
+// function that appliest a pinkgradiant to the image so i can implement the dreamcore.
+    function applyPinkGradiant(imagedata) {
+        const data = imagedata.data
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            data[i] = r + 40; 
+            data[i + 1] = g; // we keep green.
+            data[i + 2] = b + 40; 
+
+        }
+    }
 
 
 
@@ -117,6 +136,30 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
+    let lastImagedata = null; 
+
+
+    const presets = {
+    backrooms: (imagedata) => {
+        desaturate(imagedata);
+        applyYellowGradiant(imagedata);
+        addGrain(imagedata);
+        contrastFix(imagedata);
+    },
+    analog: (imagedata) => {
+        desaturate(imagedata);
+        addGrain(imagedata);
+        addGrain(imagedata);
+        contrastFix(imagedata);
+        
+    },
+    dreamcore: (imagedata) => {
+        applyPinkGradiant(imagedata);
+        desaturate(imagedata);
+        addGrain(imagedata);
+    }
+    };
+
     input.addEventListener('change', function(event) {
         const file = event.target.files[0];
         const img = new Image();
@@ -124,12 +167,11 @@
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
+            lastImage = img; //we save the original image data 
             const imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            // usign the order desaturate -> yellow gradiant --> grain
-            desaturate(imagedata);
-            applyYellowGradiant(imagedata);
-            addGrain(imagedata);
-            contrastFix(imagedata);
+            // appliest the preset by taking the value inside the menu
+            const preset = document.getElementById('presetSelect').value;
+            presets[preset](imagedata); // applies it 
             ctx.putImageData(imagedata, 0, 0);
             canvas.style.display = 'block'; // need this otherwise the canvas does not show up D:
             // start of download button instructions
@@ -145,4 +187,15 @@
         };
         img.src = URL.createObjectURL(file);
     });
+    // this is an event listener where every time the user changes the preset the image gets reset so it does not get stuck.
+    document.getElementById('presetSelect').addEventListener('change', function() {
+        if(!lastImage) return; // if there is no image we do not want to do anything
+        ctx.drawImage(lastImage, 0, 0); // we reset the image to the original one
+        const imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        presets[this.value](imagedata); // this applies the new preset
+        ctx.putImageData(imagedata, 0, 0); // changes the image
+    
+});
+
+
     </script>
